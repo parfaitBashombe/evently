@@ -3,8 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Badge } from "./ui/badge";
 import { notFound } from "next/navigation";
-import { Form, FormField } from "./ui/form";
-import { Label } from "./ui/label";
+import { Field, FieldLabel, FieldDescription } from "./ui/field";
 import { Input } from "./ui/input";
 import { submitOrUpdateRsvpAction } from "@/lib/actions/events";
 
@@ -52,16 +51,14 @@ export const InviteRsvpContent = async ({
             RSVP
           </Badge>
           <CardTitle>{event.title}</CardTitle>
-          <p className="text-sm text-(--muted-foreground)">
+          <p className="text-sm text-muted-foreground">
             {event.eventDate
               ? new Date(event.eventDate).toLocaleString()
               : "No date selected"}
             {event.location ? ` - ${event.location}` : ""}
           </p>
           {event.description ? (
-            <p className="text-sm text-(--muted-foreground)">
-              {event.description}
-            </p>
+            <p className="text-sm text-muted-foreground">{event.description}</p>
           ) : null}
         </CardHeader>
         <CardContent>
@@ -70,37 +67,53 @@ export const InviteRsvpContent = async ({
               Thanks. Your RSVP has been recorded (or updated).
             </p>
           ) : null}
-          <Form action={submitRsvpForToken}>
-            <FormField>
-              <Label htmlFor="name">Name</Label>
-              <Input id="name" name="name" required placeholder="Your name" />
-            </FormField>
-            <FormField>
-              <Label htmlFor="email">Email</Label>
+          <form action={submitRsvpForToken} className="space-y-4">
+            <Field>
+              <FieldLabel htmlFor="name">Name</FieldLabel>
+              <Input
+                id="name"
+                name="name"
+                required
+                placeholder="Your name"
+                autoComplete="off"
+              />
+              <FieldDescription>
+                Enter the name we should use for your RSVP.
+              </FieldDescription>
+            </Field>
+            <Field>
+              <FieldLabel htmlFor="email">Email</FieldLabel>
               <Input
                 id="email"
                 name="email"
                 type="email"
                 required
                 placeholder="you@example.com"
+                autoComplete="off"
               />
-            </FormField>
-            <FormField>
-              <Label htmlFor="status">Attendance</Label>
+              <FieldDescription>
+                We&apos;ll use this to confirm your RSVP.
+              </FieldDescription>
+            </Field>
+            <Field>
+              <FieldLabel htmlFor="status">Attendance</FieldLabel>
               <select
                 id="status"
                 name="status"
                 required
                 defaultValue="going"
-                className="flex h-10 w-full rounded-md border border-(--border) bg-(--surface) px-3 py-2 text-sm text-(--foreground)"
+                className="flex h-10 w-full rounded-md border border-border bg-(--surface) px-3 py-2 text-sm text-foreground"
               >
                 <option value="going">Going</option>
                 <option value="maybe">Maybe</option>
                 <option value="not_going">Not going</option>
               </select>
-            </FormField>
+              <FieldDescription>
+                Let the organiser know if you plan to attend.
+              </FieldDescription>
+            </Field>
             <Button type="submit">Submit RSVP</Button>
-          </Form>
+          </form>
         </CardContent>
       </Card>
     </div>

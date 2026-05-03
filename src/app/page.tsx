@@ -10,7 +10,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
-export default function Home() {
+const Home = () => {
   return (
     <div className="flex flex-1 flex-col gap-8">
       <section className="space-y-4">
@@ -68,4 +68,6 @@ export default function Home() {
       </section>
     </div>
   );
-}
+};
+
+export default Home;
