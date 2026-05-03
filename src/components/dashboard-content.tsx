@@ -45,7 +45,7 @@ export const DashboardContent = async ({ userId }: { userId: string }) => {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Your Events</h1>
-          <p className="text-sm text-[var(--muted-foreground)]">
+          <p className="text-sm text-(--muted-foreground)">
             {" "}
             Track attendee responses and manage invite links.
           </p>
@@ -64,7 +64,7 @@ export const DashboardContent = async ({ userId }: { userId: string }) => {
             <CardTitle>No events yet</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-sm text-[var(--muted-foreground)]">
+            <p className="text-sm text-(--muted-foreground)">
               Create your first event to start collecting RSVPs.
             </p>
           </CardContent>

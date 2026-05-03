@@ -31,7 +31,7 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased dark`}
       suppressHydrationWarning
     >
-      <body className="min-h-full flex flex-col bg-(--background) text-(--foreground)">
+      <body className="min-h-full flex flex-col bg-background text-foreground">
         <NeonAuthUIProvider authClient={authClient as any} defaultTheme="dark">
           <header className="border-b border-(--border) bg-(--surface)/90 backdrop-blur">
             <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-4">
