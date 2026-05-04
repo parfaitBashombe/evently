@@ -4,6 +4,7 @@ import "./globals.css";
 import Link from "next/link";
 import { authClient } from "@/lib/auth/client";
 import { NeonAuthUIProvider, UserButton } from "@neondatabase/auth/react";
+import type { ComponentProps } from "react";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -21,6 +22,8 @@ export const metadata: Metadata = {
     "Create events, share unique invite links, and track Going / Maybe / Not Going responses in real-time.",
 };
 
+type NeonAuthClient = ComponentProps<typeof NeonAuthUIProvider>["authClient"];
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -33,7 +36,10 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col bg-background text-foreground">
-        <NeonAuthUIProvider authClient={authClient as any} defaultTheme="dark">
+        <NeonAuthUIProvider
+          authClient={authClient as NeonAuthClient}
+          defaultTheme="dark"
+        >
           <header className="border-b border-border bg-(--surface)/90 backdrop-blur">
             <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-4">
               <Link href={"/"} className="text-sm font-semibold tracking-wide">
