@@ -12,29 +12,40 @@ import {
 import { Field, FieldLabel, FieldDescription } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { createEventAction } from "@/lib/actions/events";
-import { CalendarPlus, ArrowRight, Loader2 } from "lucide-react";
+import { Pencil, ArrowRight, Loader2, CalendarCog } from "lucide-react";
+import { updateEventAction } from "@/lib/actions/events";
 
-interface CreateEventModalProps {
+interface EditEventModalProps {
+  event: {
+    id: string;
+    title: string;
+    description: string | null;
+    location: string | null;
+    eventDate: string | null;
+  };
   onSuccess?: () => void;
 }
 
-export const CreateEventModal = ({ onSuccess }: CreateEventModalProps) => {
+export const EditEventModal = ({ event, onSuccess }: EditEventModalProps) => {
   const [open, setOpen] = useState(false);
   const [pending, setPending] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
+
+  const toDatetimeLocal = (iso: string | null): string => {
+    if (!iso) return "";
+    const d = new Date(iso);
+    const p = (n: number) => String(n).padStart(2, "0");
+    return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`;
+  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setPending(true);
     const formData = new FormData(e.currentTarget);
     try {
-      await createEventAction(formData);
+      await updateEventAction(event.id, formData);
       onSuccess?.();
       setOpen(false);
-      formRef.current?.reset();
-    } catch (error) {
-      console.error("Failed to create event", error);
     } finally {
       setPending(false);
     }
@@ -43,10 +54,9 @@ export const CreateEventModal = ({ onSuccess }: CreateEventModalProps) => {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button size="lg">
-          <CalendarPlus className="mr-2 h-4 w-4" />
-          Create event
-          <ArrowRight className="ml-2 h-4 w-4" />
+        <Button size="sm" variant="outline" className="border-white/10 gap-1.5">
+          <Pencil className="h-3.5 w-3.5" />
+          Edit event
         </Button>
       </DialogTrigger>
 
@@ -73,7 +83,7 @@ export const CreateEventModal = ({ onSuccess }: CreateEventModalProps) => {
               className="flex h-9 w-9 items-center justify-center rounded-xl"
               style={{ background: "rgba(149,95,255,0.15)" }}
             >
-              <CalendarPlus className="h-5 w-5 text-violet-400" />
+              <CalendarCog className="h-5 w-5 text-violet-400" />
             </span>
             <DialogTitle
               className="text-xl font-bold tracking-tight"
@@ -84,7 +94,7 @@ export const CreateEventModal = ({ onSuccess }: CreateEventModalProps) => {
                 WebkitTextFillColor: "transparent",
               }}
             >
-              Create Event
+              Edit Event
             </DialogTitle>
           </div>
         </DialogHeader>
@@ -95,21 +105,23 @@ export const CreateEventModal = ({ onSuccess }: CreateEventModalProps) => {
           className="flex flex-col gap-5"
         >
           <Field>
-            <FieldLabel htmlFor="title">Title</FieldLabel>
+            <FieldLabel htmlFor="edit-title">Title</FieldLabel>
             <Input
-              id="title"
+              id="edit-title"
               name="title"
               required
+              defaultValue={event.title}
               placeholder="Team dinner..."
               className="border-white/10 bg-white/5 focus-visible:border-violet-500/50 focus-visible:ring-violet-500/20"
             />
           </Field>
 
           <Field>
-            <FieldLabel htmlFor="description">Description</FieldLabel>
+            <FieldLabel htmlFor="edit-description">Description</FieldLabel>
             <Textarea
-              id="description"
+              id="edit-description"
               name="description"
+              defaultValue={event.description ?? ""}
               placeholder="Optional details about the event"
               className="border-white/10 bg-white/5 focus-visible:border-violet-500/50 focus-visible:ring-violet-500/20 resize-none"
               rows={3}
@@ -117,25 +129,27 @@ export const CreateEventModal = ({ onSuccess }: CreateEventModalProps) => {
           </Field>
 
           <Field>
-            <FieldLabel htmlFor="location">Location</FieldLabel>
+            <FieldLabel htmlFor="edit-location">Location</FieldLabel>
             <Input
-              id="location"
+              id="edit-location"
               name="location"
+              defaultValue={event.location ?? ""}
               placeholder="Optional location"
               className="border-white/10 bg-white/5 focus-visible:border-violet-500/50 focus-visible:ring-violet-500/20"
             />
           </Field>
 
           <Field>
-            <FieldLabel htmlFor="eventDate">Date and time</FieldLabel>
+            <FieldLabel htmlFor="edit-eventDate">Date and time</FieldLabel>
             <Input
-              id="eventDate"
+              id="edit-eventDate"
               name="eventDate"
               type="datetime-local"
+              defaultValue={toDatetimeLocal(event.eventDate)}
               className="border-white/10 bg-white/5 focus-visible:border-violet-500/50 focus-visible:ring-violet-500/20"
             />
             <FieldDescription className="text-xs text-muted-foreground">
-              Optional — you can set this later.
+              Optional — leave blank to keep unset.
             </FieldDescription>
           </Field>
 
@@ -153,11 +167,11 @@ export const CreateEventModal = ({ onSuccess }: CreateEventModalProps) => {
               {pending ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Creating…
+                  Saving…
                 </>
               ) : (
                 <>
-                  Create event
+                  Save changes
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </>
               )}
