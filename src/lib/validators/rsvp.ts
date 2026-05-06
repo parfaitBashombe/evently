@@ -7,6 +7,6 @@ export const rsvpSchema = z.object({
     .max(120, "Name must be between 2 and 120 characters."),
   email: z.string().email("Please enter a valid email.").min(3).max(320),
   status: z.enum(["going", "maybe", "not_going"], {
-    errorMap: () => ({ message: "Invalid RSVP status." }),
+    message: "Invalid RSVP status.",
   }),
 });
