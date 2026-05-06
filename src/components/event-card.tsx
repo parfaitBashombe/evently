@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Button } from "./ui/button";
 import { ConfirmDeleteModal } from "./confirm-delete-modal";
-import { deleteEventAction } from "@/lib/actions/events";
 import {
   CalendarDays,
   MapPin,
@@ -44,7 +43,8 @@ export const EventCard = ({
   const goingPct = total > 0 ? (goingCount / total) * 100 : 0;
 
   const handleDeleteConfirm = async () => {
-    await deleteEventAction(id);
+    const response = await fetch(`/api/events/${id}`, { method: "DELETE" });
+    if (!response.ok) console.error("Failed to delete event");
     onDelete?.();
   };
 

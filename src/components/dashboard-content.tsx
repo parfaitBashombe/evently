@@ -7,7 +7,6 @@ import { Badge } from "./ui/badge";
 import { CreateEventModal } from "@/components/create-event-modal";
 import { EventCard } from "@/components/event-card";
 import { DashboardSkeleton } from "@/components/dashboard-skeleton";
-import { getDashboardEvents } from "@/lib/actions/events";
 import { RefreshCw, CalendarPlus } from "lucide-react";
 
 interface Event {
@@ -27,7 +26,9 @@ export const DashboardContent = ({ userId }: { userId: string }) => {
 
   const fetchEvents = useCallback(async () => {
     try {
-      const data = await getDashboardEvents(userId);
+      const response = await fetch("/api/events");
+      if (!response.ok) throw new Error("Failed to fetch events");
+      const data = await response.json();
       setEvents(data);
     } catch (error) {
       console.error("Failed to fetch events", error);
