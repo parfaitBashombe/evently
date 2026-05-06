@@ -14,7 +14,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { createInviteLinkAction, getEventDetail } from "@/lib/actions/events";
 import { EditEventModal } from "@/components/edit-event-modal";
 import {
   CalendarDays,
@@ -97,15 +96,21 @@ export const EventDetailModal = ({
   const fetchEvent = async () => {
     if (!eventId) return;
     setLoading(true);
-    const data = await getEventDetail(eventId);
-    if (data) {
-      // Ensure eventDate is a string (API might return a Date object)
-      data.eventDate = data.eventDate
-        ? new Date(data.eventDate).toISOString()
-        : null;
+    try {
+      const response = await fetch(`/api/events/${eventId}`);
+      if (!response.ok) throw new Error("Failed to fetch event detail");
+      const data = await response.json();
+      if (data) {
+        data.eventDate = data.eventDate
+          ? new Date(data.eventDate).toISOString()
+          : null;
+      }
+      setEvent(data);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
     }
-    setEvent(data);
-    setLoading(false);
   };
 
   useEffect(() => {
@@ -121,7 +126,19 @@ export const EventDetailModal = ({
 
   if (!eventId) return null;
 
-  const createInviteActionForEvent = createInviteLinkAction.bind(null, eventId);
+  const handleCreateInvite = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      const response = await fetch(`/api/events/${eventId}/invite`, { method: "POST" });
+      if (!response.ok) throw new Error("Failed to create invite");
+      await fetchEvent();
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const inviteUrl = event?.inviteToken
     ? `${process.env.NEXT_PUBLIC_APP_URL ?? ""}/invite/${event.inviteToken}`
@@ -337,7 +354,7 @@ export const EventDetailModal = ({
                 </p>
               )}
 
-              <form action={createInviteActionForEvent}>
+              <form onSubmit={handleCreateInvite}>
                 <Button type="submit" size="sm">
                   {inviteUrl ? "Regenerate Link" : "Generate Link"}
                 </Button>

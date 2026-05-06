@@ -13,7 +13,6 @@ import { Field, FieldLabel, FieldDescription } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Pencil, ArrowRight, Loader2, CalendarCog } from "lucide-react";
-import { updateEventAction } from "@/lib/actions/events";
 
 interface EditEventModalProps {
   event: {
@@ -43,7 +42,11 @@ export const EditEventModal = ({ event, onSuccess }: EditEventModalProps) => {
     setPending(true);
     const formData = new FormData(e.currentTarget);
     try {
-      await updateEventAction(event.id, formData);
+      const response = await fetch(`/api/events/${event.id}`, {
+        method: "PUT",
+        body: formData,
+      });
+      if (!response.ok) throw new Error("Failed to update event");
       onSuccess?.();
       setOpen(false);
     } finally {

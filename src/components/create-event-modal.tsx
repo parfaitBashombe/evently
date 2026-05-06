@@ -12,7 +12,6 @@ import {
 import { Field, FieldLabel, FieldDescription } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { createEventAction } from "@/lib/actions/events";
 import { CalendarPlus, ArrowRight, Loader2 } from "lucide-react";
 
 interface CreateEventModalProps {
@@ -29,7 +28,11 @@ export const CreateEventModal = ({ onSuccess }: CreateEventModalProps) => {
     setPending(true);
     const formData = new FormData(e.currentTarget);
     try {
-      await createEventAction(formData);
+      const response = await fetch("/api/events", {
+        method: "POST",
+        body: formData,
+      });
+      if (!response.ok) throw new Error("Failed to create event");
       onSuccess?.();
       setOpen(false);
       formRef.current?.reset();
