@@ -1,11 +1,10 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
-export const GET = async ({
-  params,
-}: {
-  params: Promise<{ token: string }>;
-}) => {
+export const GET = async (
+  request: NextRequest,
+  { params }: { params: Promise<{ token: string }> }
+) => {
   try {
     const { token } = await params;
     const row = await prisma.eventInvite.findFirst({
