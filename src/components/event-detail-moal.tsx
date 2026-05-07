@@ -160,6 +160,9 @@ export const EventDetailModal = ({
           border: "1px solid rgba(149,95,255,0.2)",
         }}
       >
+        <DialogTitle className="sr-only">
+          {event?.title ? `Event Details: ${event.title}` : "Event Details"}
+        </DialogTitle>
         {loading || !event ? (
           <div className="flex items-center justify-center py-20">
             <Loader2 className="h-8 w-8 animate-spin text-violet-400" />
@@ -172,9 +175,9 @@ export const EventDetailModal = ({
                 <Badge variant="secondary" className="w-fit mb-1">
                   Event Details
                 </Badge>
-                <DialogTitle className="text-xl font-bold">
+                <h2 className="text-xl font-bold font-heading">
                   {event.title}
-                </DialogTitle>
+                </h2>
 
                 <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground">
                   {event.eventDate && (
