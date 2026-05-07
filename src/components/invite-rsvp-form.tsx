@@ -66,6 +66,7 @@ export const InviteRsvpForm = ({
             placeholder="Your name"
             autoComplete="off"
             disabled={pending}
+            className="border-white/10 bg-white/5 focus-visible:border-violet-500/50 focus-visible:ring-violet-500/20"
           />
           <FieldDescription>
             Enter the name we should use for your RSVP.
@@ -81,6 +82,7 @@ export const InviteRsvpForm = ({
             placeholder="you@example.com"
             autoComplete="off"
             disabled={pending}
+            className="border-white/10 bg-white/5 focus-visible:border-violet-500/50 focus-visible:ring-violet-500/20"
           />
           <FieldDescription>
             We&apos;ll use this to confirm your RSVP.
@@ -94,7 +96,7 @@ export const InviteRsvpForm = ({
             required
             defaultValue="going"
             disabled={pending}
-            className="flex h-10 w-full rounded-md border border-border bg-(--surface) px-3 py-2 text-sm text-foreground"
+            className="flex h-10 w-full rounded-md border border-white/10 bg-white/5 px-3 py-2 text-sm text-foreground focus-visible:border-violet-500/50 focus-visible:ring-violet-500/20 focus-visible:outline-none"
           >
             <option value="going">Going</option>
             <option value="maybe">Maybe</option>
