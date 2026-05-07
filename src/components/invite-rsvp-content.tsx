@@ -1,54 +1,95 @@
-import { Button } from "./ui/button";
-import { prisma } from "@/lib/prisma";
+"use client";
+
+import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Badge } from "./ui/badge";
 import { notFound } from "next/navigation";
 import { InviteRsvpForm } from "./invite-rsvp-form";
+import { Loader2 } from "lucide-react";
 
-export const InviteRsvpContent = async ({
+interface EventData {
+  title: string;
+  description: string | null;
+  location: string | null;
+  eventDate: string | null;
+}
+
+export const InviteRsvpContent = ({
   token,
   submitted,
 }: {
   token: string;
   submitted: boolean;
 }) => {
-  const row = await prisma.eventInvite.findFirst({
-    where: { token },
-    include: {
-      event: {
-        select: {
-          id: true,
-          title: true,
-          description: true,
-          location: true,
-          eventDate: true,
-        },
-      },
-    },
-  });
+  const [event, setEvent] = useState<EventData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
-  if (!row) {
+  useEffect(() => {
+    const fetchEvent = async () => {
+      try {
+        const response = await fetch(`/api/invite/${token}`);
+        if (!response.ok) {
+          setError(true);
+          return;
+        }
+        const data = await response.json();
+        setEvent(data.event);
+      } catch (err) {
+        console.error(err);
+        setError(true);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchEvent();
+  }, [token]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <Loader2 className="h-8 w-8 animate-spin text-violet-400" />
+      </div>
+    );
+  }
+
+  if (error || !event) {
     notFound();
   }
 
-  const eventRow = row.event;
-  const event = {
-    title: eventRow.title,
-    description: eventRow.description,
-    location: eventRow.location,
-    eventDate: eventRow.eventDate ? eventRow.eventDate.toISOString() : null,
-  };
-
-  // Removed action binding
-
   return (
     <div className="mx-auto w-full max-w-2xl">
-      <Card>
+      <Card
+        className="overflow-hidden relative"
+        style={{
+          background: "linear-gradient(160deg, #1a0f2e 0%, #16161f 100%)",
+          border: "1px solid rgba(149,95,255,0.2)",
+        }}
+      >
+        <div
+          aria-hidden
+          className="absolute inset-x-0 top-0 h-px rounded-t-lg"
+          style={{
+            background:
+              "linear-gradient(90deg, transparent 0%, #955fff 40%, #c084fc 60%, transparent 100%)",
+            opacity: 0.6,
+          }}
+        />
         <CardHeader className="space-y-3">
           <Badge variant="secondary" className="w-fit">
             RSVP
           </Badge>
-          <CardTitle>{event.title}</CardTitle>
+          <CardTitle
+            className="text-xl font-bold tracking-tight"
+            style={{
+              background: "linear-gradient(135deg, #ffffff 30%, #c084fc 100%)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+            }}
+          >
+            {event.title}
+          </CardTitle>
           <p className="text-sm text-muted-foreground">
             {event.eventDate
               ? new Date(event.eventDate).toLocaleString()
