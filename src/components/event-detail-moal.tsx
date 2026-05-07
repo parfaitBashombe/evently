@@ -92,10 +92,11 @@ export const EventDetailModal = ({
 }: EventDetailModalProps) => {
   const [event, setEvent] = useState<EventDetail | null>(null);
   const [loading, setLoading] = useState(false);
+  const [isGeneratingLink, setIsGeneratingLink] = useState(false);
 
-  const fetchEvent = async () => {
+  const fetchEvent = async (silent = false) => {
     if (!eventId) return;
-    setLoading(true);
+    if (!silent) setLoading(true);
     try {
       const response = await fetch(`/api/events/${eventId}`);
       if (!response.ok) throw new Error("Failed to fetch event detail");
@@ -109,7 +110,7 @@ export const EventDetailModal = ({
     } catch (error) {
       console.error(error);
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   };
 
@@ -120,7 +121,7 @@ export const EventDetailModal = ({
   }, [open, eventId]);
 
   const handleAfterMutation = async () => {
-    await fetchEvent();
+    await fetchEvent(true);
     onEventUpdated?.();
   };
 
@@ -128,20 +129,21 @@ export const EventDetailModal = ({
 
   const handleCreateInvite = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
+    setIsGeneratingLink(true);
     try {
       const response = await fetch(`/api/events/${eventId}/invite`, { method: "POST" });
       if (!response.ok) throw new Error("Failed to create invite");
-      await fetchEvent();
+      await fetchEvent(true);
     } catch (error) {
       console.error(error);
     } finally {
-      setLoading(false);
+      setIsGeneratingLink(false);
     }
   };
 
+  const baseUrl = typeof window !== "undefined" ? window.location.origin : process.env.NEXT_PUBLIC_APP_URL ?? "";
   const inviteUrl = event?.inviteToken
-    ? `${process.env.NEXT_PUBLIC_APP_URL ?? ""}/invite/${event.inviteToken}`
+    ? `${baseUrl}/invite/${event.inviteToken}`
     : null;
 
   const total = event
@@ -358,7 +360,8 @@ export const EventDetailModal = ({
               )}
 
               <form onSubmit={handleCreateInvite}>
-                <Button type="submit" size="sm">
+                <Button type="submit" size="sm" disabled={isGeneratingLink}>
+                  {isGeneratingLink && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                   {inviteUrl ? "Regenerate Link" : "Generate Link"}
                 </Button>
               </form>
