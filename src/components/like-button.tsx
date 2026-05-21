@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Heart, Loader2 } from "lucide-react";
+import { FaHeart, FaSpinner } from "react-icons/fa6";
 
 const getOrCreateFingerprint = () => {
   if (typeof window === "undefined") return "";
@@ -70,10 +70,10 @@ export const LikeButton = ({
       aria-label={liked ? "Unlike" : "Like"}
     >
       {toggling ? (
-        <Loader2 className="h-4 w-4 animate-spin" />
+        <FaSpinner className="h-4 w-4 animate-spin" />
       ) : (
-        <Heart
-          className={`h-4 w-4 transition-transform group-active:scale-90 ${liked ? "fill-rose-400" : ""}`}
+        <FaHeart
+          className={`h-4 w-4 transition-transform group-active:scale-90 ${liked ? "text-rose-400" : ""}`}
         />
       )}
       <span className="tabular-nums">{count}</span>

@@ -1,57 +1,78 @@
 import Link from "next/link";
-import { CalendarDays } from "lucide-react";
 import { UserButton } from "@neondatabase/auth/react";
+import { getSession } from "@/lib/auth/server";
 
-export default function MainLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default async function MainLayout({ children }: { children: React.ReactNode }) {
+  let isLoggedIn = false;
+  try {
+    const session = await getSession();
+    isLoggedIn = Boolean(session?.data);
+  } catch {
+    isLoggedIn = false;
+  }
+
   return (
     <>
-      <header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
-        <div className="mx-auto flex h-14 w-full max-w-5xl items-center justify-between px-4">
-          <Link
-            href="/"
-            className="flex items-center gap-2 transition-opacity hover:opacity-70"
-          >
-            <CalendarDays className="h-4.5 w-4.5 text-violet-400" />
-            <span className="text-sm font-semibold tracking-tight">Evently</span>
-          </Link>
+      {/* Navbar */}
+      <nav className="fixed top-0 w-full z-50 bg-[#080c18]/80 backdrop-blur-md border-b border-white/8">
+        <div className="flex justify-between items-center max-w-7xl mx-auto px-4 md:px-10 h-[68px]">
+          <div className="flex items-center gap-8">
+            <Link href="/" className="font-extrabold text-xl text-white tracking-tight">
+              Evently
+            </Link>
+            <div className="hidden md:flex gap-0.5">
+              <Link href="/dashboard" className="text-sm font-semibold text-white/55 hover:text-white transition-colors rounded-lg px-3 py-2 hover:bg-white/5">
+                Dashboard
+              </Link>
+            </div>
+          </div>
 
-          <nav className="flex items-center gap-5">
-            <Link
-              href="/dashboard"
-              className="text-sm text-muted-foreground transition-colors hover:text-foreground"
-            >
-              Dashboard
-            </Link>
-            <Link
-              href="/events/new"
-              className="hidden sm:flex items-center gap-1.5 rounded-full bg-violet-500/10 border border-violet-500/30 px-3 py-1 text-xs font-medium text-violet-400 transition-colors hover:bg-violet-500/15"
-            >
-              <CalendarDays className="h-3 w-3" />
-              New event
-            </Link>
-            <div className="h-4 w-px bg-border" aria-hidden />
-            <UserButton size="icon" />
-          </nav>
+          <div className="flex items-center gap-3">
+            {isLoggedIn ? (
+              <>
+                <UserButton />
+                <Link
+                  href="/events/new"
+                  className="text-sm font-bold px-5 py-2 rounded-xl text-white transition-all hover:shadow-[0_0_20px_4px_rgba(0,74,198,0.4)] active:scale-95"
+                  style={{ background: "linear-gradient(135deg, #004ac6, #6d28d9)" }}
+                >
+                  New event
+                </Link>
+              </>
+            ) : (
+              <>
+                <Link href="/auth/sign-in" className="hidden md:block text-sm font-semibold text-white/55 hover:text-white transition-colors px-4 py-2">
+                  Sign in
+                </Link>
+                <Link
+                  href="/auth/sign-up"
+                  className="text-sm font-bold px-5 py-2 rounded-xl text-white transition-all hover:shadow-[0_0_20px_4px_rgba(0,74,198,0.4)] active:scale-95"
+                  style={{ background: "linear-gradient(135deg, #004ac6, #6d28d9)" }}
+                >
+                  Get started
+                </Link>
+              </>
+            )}
+          </div>
         </div>
-      </header>
+      </nav>
 
-      <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col px-4 py-10">
-        {children}
-      </main>
+      <main className="pt-[68px] flex-1 flex flex-col">{children}</main>
 
-      <footer className="border-t border-border">
-        <div className="mx-auto flex h-12 w-full max-w-5xl items-center justify-between px-4">
-          <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
-            <CalendarDays className="h-3.5 w-3.5 text-violet-400/60" />
-            Evently
-          </span>
-          <p className="text-xs text-muted-foreground">
-            Built on Next.js · Neon Auth · Neon Postgres
-          </p>
+      {/* Footer */}
+      <footer className="bg-[#080c18] border-t border-white/8">
+        <div className="max-w-7xl mx-auto px-4 md:px-10 py-12 flex flex-col md:flex-row justify-between items-center gap-6">
+          <div className="flex flex-col items-center md:items-start gap-1.5">
+            <span className="font-extrabold text-xl text-white tracking-tight">Evently</span>
+            <span className="text-sm text-white/35">© 2025 Evently. Built with precision.</span>
+          </div>
+          <div className="flex flex-wrap justify-center gap-6 md:gap-8">
+            {["Terms", "Privacy", "Tech Stack", "API Docs"].map((label) => (
+              <Link key={label} href="#" className="text-sm text-white/35 hover:text-white/70 transition-colors">
+                {label}
+              </Link>
+            ))}
+          </div>
         </div>
       </footer>
     </>

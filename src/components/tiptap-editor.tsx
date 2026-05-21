@@ -6,20 +6,19 @@ import Placeholder from "@tiptap/extension-placeholder";
 import Link from "@tiptap/extension-link";
 import { useEffect, useRef, useState } from "react";
 import {
-  Bold,
-  Italic,
-  Strikethrough,
-  Heading2,
-  Heading3,
-  List,
-  ListOrdered,
-  Quote,
-  Code,
-  Link2,
-  Link2Off,
-  ImageIcon,
-  Loader2,
-} from "lucide-react";
+  FaBold,
+  FaItalic,
+  FaStrikethrough,
+  FaHeading,
+  FaList,
+  FaListOl,
+  FaQuoteLeft,
+  FaCode,
+  FaLink,
+  FaLinkSlash,
+  FaImage,
+  FaSpinner,
+} from "react-icons/fa6";
 
 interface TipTapEditorProps {
   content?: string;
@@ -50,8 +49,8 @@ const ToolbarButton = ({
     title={title}
     className={`flex h-7 w-7 items-center justify-center rounded-md text-xs transition-colors ${
       active
-        ? "bg-violet-500/20 text-violet-300"
-        : "text-muted-foreground hover:bg-muted hover:text-foreground"
+        ? "bg-[#004ac6]/10 text-[#60a5fa]"
+        : "text-white/40 hover:bg-white/8 hover:text-white/70"
     } disabled:opacity-40`}
   >
     {children}
@@ -122,94 +121,98 @@ export const TipTapEditor = ({
   if (!editor) return null;
 
   return (
-    <div className="flex flex-col rounded-xl border border-border bg-card overflow-hidden">
+    <div className="flex flex-col rounded-xl border border-white/10 bg-[#0e1528] overflow-hidden">
       {/* Toolbar */}
-      <div className="flex flex-wrap items-center gap-0.5 border-b border-border px-2 py-1.5">
+      <div className="flex flex-wrap items-center gap-0.5 border-b border-white/8 bg-white/3 px-2 py-1.5">
         <ToolbarButton
           onClick={() => editor.chain().focus().toggleBold().run()}
           active={editor.isActive("bold")}
           title="Bold"
         >
-          <Bold className="h-3.5 w-3.5" />
+          <FaBold className="h-3.5 w-3.5" />
         </ToolbarButton>
         <ToolbarButton
           onClick={() => editor.chain().focus().toggleItalic().run()}
           active={editor.isActive("italic")}
           title="Italic"
         >
-          <Italic className="h-3.5 w-3.5" />
+          <FaItalic className="h-3.5 w-3.5" />
         </ToolbarButton>
         <ToolbarButton
           onClick={() => editor.chain().focus().toggleStrike().run()}
           active={editor.isActive("strike")}
           title="Strikethrough"
         >
-          <Strikethrough className="h-3.5 w-3.5" />
+          <FaStrikethrough className="h-3.5 w-3.5" />
         </ToolbarButton>
 
-        <div className="mx-1 h-4 w-px bg-border" />
+        <div className="mx-1 h-4 w-px bg-white/8" />
 
         <ToolbarButton
           onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
           active={editor.isActive("heading", { level: 2 })}
           title="Heading 2"
         >
-          <Heading2 className="h-3.5 w-3.5" />
+          <span className="flex items-center gap-0.5 text-[10px] font-bold">
+            <FaHeading className="h-3 w-3" />2
+          </span>
         </ToolbarButton>
         <ToolbarButton
           onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
           active={editor.isActive("heading", { level: 3 })}
           title="Heading 3"
         >
-          <Heading3 className="h-3.5 w-3.5" />
+          <span className="flex items-center gap-0.5 text-[10px] font-bold">
+            <FaHeading className="h-3 w-3" />3
+          </span>
         </ToolbarButton>
 
-        <div className="mx-1 h-4 w-px bg-border" />
+        <div className="mx-1 h-4 w-px bg-white/8" />
 
         <ToolbarButton
           onClick={() => editor.chain().focus().toggleBulletList().run()}
           active={editor.isActive("bulletList")}
           title="Bullet list"
         >
-          <List className="h-3.5 w-3.5" />
+          <FaList className="h-3.5 w-3.5" />
         </ToolbarButton>
         <ToolbarButton
           onClick={() => editor.chain().focus().toggleOrderedList().run()}
           active={editor.isActive("orderedList")}
           title="Numbered list"
         >
-          <ListOrdered className="h-3.5 w-3.5" />
+          <FaListOl className="h-3.5 w-3.5" />
         </ToolbarButton>
         <ToolbarButton
           onClick={() => editor.chain().focus().toggleBlockquote().run()}
           active={editor.isActive("blockquote")}
           title="Quote"
         >
-          <Quote className="h-3.5 w-3.5" />
+          <FaQuoteLeft className="h-3.5 w-3.5" />
         </ToolbarButton>
         <ToolbarButton
           onClick={() => editor.chain().focus().toggleCode().run()}
           active={editor.isActive("code")}
           title="Inline code"
         >
-          <Code className="h-3.5 w-3.5" />
+          <FaCode className="h-3.5 w-3.5" />
         </ToolbarButton>
 
-        <div className="mx-1 h-4 w-px bg-border" />
+        <div className="mx-1 h-4 w-px bg-white/8" />
 
         <ToolbarButton
           onClick={setLink}
           active={editor.isActive("link")}
           title="Add link"
         >
-          <Link2 className="h-3.5 w-3.5" />
+          <FaLink className="h-3.5 w-3.5" />
         </ToolbarButton>
         {editor.isActive("link") && (
           <ToolbarButton
             onClick={() => editor.chain().focus().unsetLink().run()}
             title="Remove link"
           >
-            <Link2Off className="h-3.5 w-3.5" />
+            <FaLinkSlash className="h-3.5 w-3.5" />
           </ToolbarButton>
         )}
 
@@ -219,9 +222,9 @@ export const TipTapEditor = ({
           title="Insert image"
         >
           {uploading ? (
-            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            <FaSpinner className="h-3.5 w-3.5 animate-spin" />
           ) : (
-            <ImageIcon className="h-3.5 w-3.5" />
+            <FaImage className="h-3.5 w-3.5" />
           )}
         </ToolbarButton>
 
