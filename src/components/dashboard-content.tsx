@@ -1,19 +1,20 @@
-/* eslint-disable react-hooks/set-state-in-effect */
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import Link from "next/link";
 import { Button } from "./ui/button";
-import { Badge } from "./ui/badge";
-import { CreateEventModal } from "@/components/create-event-modal";
 import { EventCard } from "@/components/event-card";
 import { DashboardSkeleton } from "@/components/dashboard-skeleton";
-import { RefreshCw, CalendarPlus } from "lucide-react";
+import { CalendarPlus, RefreshCw, CalendarDays } from "lucide-react";
 
 interface Event {
   id: string;
   title: string;
   eventDate: string | null;
   location: string | null;
+  category: string | null;
+  status: string;
+  isPublic: boolean;
   goingCount: number;
   maybeCount: number;
   notGoingCount: number;
@@ -50,132 +51,79 @@ export const DashboardContent = ({ userId }: { userId: string }) => {
   const totalGoing = events.reduce((s, e) => s + e.goingCount, 0);
   const totalMaybe = events.reduce((s, e) => s + e.maybeCount, 0);
   const totalNotGoing = events.reduce((s, e) => s + e.notGoingCount, 0);
+  const totalEvents = events.length;
 
   return (
-    <div className="flex flex-1 flex-col gap-10 pb-16">
-      {/* ── Page header ── */}
-      <div className="relative flex flex-wrap items-end justify-between gap-4 pt-10">
-        <div
-          aria-hidden
-          className="pointer-events-none absolute -top-10 -left-10 h-64 w-64 rounded-full blur-3xl opacity-10"
-          style={{ background: "#955fff" }}
-        />
+    <div className="flex flex-1 flex-col gap-8 pb-16">
+      {/* ── Header ── */}
+      <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="flex flex-col gap-1">
-          <Badge variant="secondary" className="w-fit mb-1">
-            Dashboard
-          </Badge>
-          <h1
-            className="text-4xl font-black tracking-tight"
-            style={{
-              background: "linear-gradient(135deg, #ffffff 30%, #c084fc 100%)",
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-            }}
-          >
-            Your Events
-          </h1>
-          <p className="text-sm text-muted-foreground">
-            Track attendee responses and manage invite links.
-          </p>
+          <h1 className="text-2xl font-bold tracking-tight">Your Events</h1>
+          {!initialLoading && totalEvents > 0 && (
+            <p className="text-sm text-muted-foreground">
+              {totalEvents} {totalEvents === 1 ? "event" : "events"}
+              {" · "}
+              <span className="text-emerald-400">{totalGoing} going</span>
+              {" · "}
+              <span className="text-amber-400">{totalMaybe} maybe</span>
+              {" · "}
+              <span className="text-red-400">{totalNotGoing} not going</span>
+            </p>
+          )}
         </div>
 
         <div className="flex items-center gap-2">
-          <CreateEventModal onSuccess={handleRefetch} />
           <Button
             size="sm"
-            variant="outline"
-            className="border-white/10 gap-1.5"
+            variant="ghost"
             onClick={handleRefetch}
             disabled={isRefreshing}
+            className="text-muted-foreground"
           >
             <RefreshCw
               className={`h-3.5 w-3.5 ${isRefreshing ? "animate-spin" : ""}`}
             />
-            Reload
           </Button>
+          <Link href="/events/new">
+            <Button size="sm">
+              <CalendarPlus className="h-3.5 w-3.5" />
+              New event
+            </Button>
+          </Link>
         </div>
       </div>
 
-      {/* ── Stats bar ── */}
-      {!initialLoading && events.length > 0 && (
-        <section
-          className="rounded-2xl px-8 py-8"
-          style={{
-            background: "rgba(149,95,255,0.06)",
-            border: "1px solid rgba(149,95,255,0.15)",
-          }}
-        >
-          <div className="grid grid-cols-2 gap-6 md:grid-cols-4">
-            {[
-              { value: events.length, label: "Total events" },
-              { value: totalGoing, label: "Going" },
-              { value: totalMaybe, label: "Maybe" },
-              { value: totalNotGoing, label: "Not going" },
-            ].map(({ value, label }) => (
-              <div
-                key={label}
-                className="flex flex-col items-center gap-1 text-center"
-              >
-                <span
-                  className="text-4xl font-black tracking-tight"
-                  style={{
-                    background: "linear-gradient(135deg, #955fff, #c084fc)",
-                    WebkitBackgroundClip: "text",
-                    WebkitTextFillColor: "transparent",
-                  }}
-                >
-                  {value}
-                </span>
-                <span className="text-sm text-muted-foreground">{label}</span>
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* ── Content area ── */}
+      {/* ── Content ── */}
       {initialLoading ? (
         <DashboardSkeleton />
       ) : events.length === 0 ? (
-        <div
-          className="relative overflow-hidden rounded-2xl px-8 py-20 text-center"
-          style={{
-            background:
-              "linear-gradient(135deg, #1a0f2e 0%, #16161f 60%, #0f1a2e 100%)",
-            border: "1px solid rgba(149,95,255,0.2)",
-          }}
-        >
-          <div
-            aria-hidden
-            className="pointer-events-none absolute -top-8 left-1/3 h-48 w-48 rounded-full blur-3xl opacity-25"
-            style={{ background: "#955fff" }}
-          />
-          <div
-            aria-hidden
-            className="pointer-events-none absolute -bottom-8 right-1/3 h-48 w-48 rounded-full blur-3xl opacity-15"
-            style={{ background: "#6366f1" }}
-          />
-          <div className="relative flex flex-col items-center gap-4">
-            <span
-              className="flex h-14 w-14 items-center justify-center rounded-2xl"
-              style={{ background: "rgba(149,95,255,0.15)" }}
-            >
-              <CalendarPlus className="h-7 w-7 text-violet-400" />
-            </span>
-            <h2 className="text-2xl font-bold tracking-tight">No events yet</h2>
-            <p className="max-w-sm text-muted-foreground text-sm">
+        <div className="flex flex-col items-center gap-5 rounded-2xl border border-border bg-card px-8 py-20 text-center">
+          <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-violet-500/10">
+            <CalendarDays className="h-6 w-6 text-violet-400" />
+          </span>
+          <div className="flex flex-col gap-1.5">
+            <h2 className="text-lg font-semibold">No events yet</h2>
+            <p className="text-sm text-muted-foreground max-w-xs">
               Create your first event and start collecting RSVPs in under a
               minute.
             </p>
-            <div className="mt-2">
-              <CreateEventModal onSuccess={handleRefetch} />
-            </div>
           </div>
+          <Link href="/events/new">
+            <Button size="sm">
+              <CalendarPlus className="h-3.5 w-3.5" />
+              New event
+            </Button>
+          </Link>
         </div>
       ) : (
-        <div className="grid gap-5 md:grid-cols-2">
+        <div className="grid gap-4 md:grid-cols-2">
           {events.map((event) => (
-            <EventCard key={event.id} {...event} />
+            <EventCard
+              key={event.id}
+              {...event}
+              onDelete={handleRefetch}
+              onEventUpdated={handleRefetch}
+            />
           ))}
         </div>
       )}

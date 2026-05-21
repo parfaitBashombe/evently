@@ -1,81 +1,66 @@
 import { NextResponse } from "next/server";
 import { getSession } from "@/lib/auth/server";
 import { prisma } from "@/lib/prisma";
-import { parseEventFields } from "@/lib/api-utils";
+import { parseEventJson } from "@/lib/api-utils";
 import { countByStatus } from "@/lib/count-by-status";
 
-export const GET = async (request: Request, { params }: { params: Promise<{ id: string }> }) => {
+type Params = { params: Promise<{ id: string }> };
+
+export const GET = async (_req: Request, { params }: Params) => {
   const session = await getSession();
-  if (!session.data) {
+  if (!session.data)
     return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
-  }
-  
+
   const { id } = await params;
 
   try {
     const event = await prisma.event.findFirst({
-      where: {
-        id,
-        ownerUserId: session.data.user.id,
-      },
+      where: { id, ownerUserId: session.data.user.id },
       select: {
         id: true,
         title: true,
+        content: true,
         description: true,
+        coverImage: true,
         location: true,
+        category: true,
+        capacity: true,
+        status: true,
+        isPublic: true,
         eventDate: true,
-        invite: {
-          select: {
-            token: true,
-          },
-        },
+        endDate: true,
+        invite: { select: { token: true } },
         rsvps: {
-          orderBy: {
-            respondedAt: "desc",
-          },
-          select: {
-            id: true,
-            name: true,
-            email: true,
-            status: true,
-            respondedAt: true,
-          },
+          orderBy: { respondedAt: "desc" },
+          select: { id: true, name: true, email: true, status: true, message: true, respondedAt: true },
         },
+        _count: { select: { comments: true, likes: true } },
       },
     });
 
-    if (!event) {
+    if (!event)
       return NextResponse.json({ error: "Event not found" }, { status: 404 });
-    }
 
-    const counts = countByStatus(event.rsvps);
-
-    const eventDetail = {
-      id: event.id,
-      title: event.title,
-      description: event.description,
-      location: event.location,
-      eventDate: event.eventDate ? event.eventDate.toISOString() : null,
+    return NextResponse.json({
+      ...event,
+      eventDate: event.eventDate?.toISOString() ?? null,
+      endDate: event.endDate?.toISOString() ?? null,
       inviteToken: event.invite?.token ?? null,
-      rsvps: event.rsvps.map((rsvp) => ({
-        ...rsvp,
-        respondedAt: rsvp.respondedAt.toISOString(),
-      })),
-      ...counts,
-    };
-
-    return NextResponse.json(eventDetail);
+      commentCount: event._count.comments,
+      likeCount: event._count.likes,
+      rsvps: event.rsvps.map((r) => ({ ...r, respondedAt: r.respondedAt.toISOString() })),
+      ...countByStatus(event.rsvps),
+    });
   } catch (error) {
-    console.error("Failed to fetch event detail", error);
+    console.error("Failed to fetch event", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
-}
+};
 
-export const PUT = async (request: Request, { params }: { params: Promise<{ id: string }> }) => {
+export const PUT = async (request: Request, { params }: Params) => {
   const session = await getSession();
-  if (!session.data) {
+  if (!session.data)
     return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
-  }
 
   const { id } = await params;
 
@@ -84,36 +69,43 @@ export const PUT = async (request: Request, { params }: { params: Promise<{ id: 
       where: { id, ownerUserId: session.data.user.id },
       select: { id: true },
     });
-
-    if (!owns) {
+    if (!owns)
       return NextResponse.json({ error: "Event not found" }, { status: 404 });
-    }
 
-    const formData = await request.formData();
-    const input = parseEventFields(formData);
+    const body = await request.json();
+    const input = parseEventJson(body);
 
     await prisma.event.update({
       where: { id },
       data: {
         title: input.title,
+        content: input.content,
         description: input.description,
+        coverImage: input.coverImage,
         location: input.location,
+        category: input.category,
+        capacity: input.capacity ?? null,
+        status: input.status ?? "draft",
+        isPublic: input.isPublic ?? false,
         eventDate: input.eventDate ? new Date(input.eventDate) : null,
+        endDate: input.endDate ? new Date(input.endDate) : null,
       },
     });
 
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Failed to update event", error);
-    return NextResponse.json({ error: error instanceof Error ? error.message : "Bad Request" }, { status: 400 });
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : "Bad Request" },
+      { status: 400 }
+    );
   }
-}
+};
 
-export const DELETE = async (request: Request, { params }: { params: Promise<{ id: string }> }) => {
+export const DELETE = async (_req: Request, { params }: Params) => {
   const session = await getSession();
-  if (!session.data) {
+  if (!session.data)
     return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
-  }
 
   const { id } = await params;
 
@@ -122,18 +114,16 @@ export const DELETE = async (request: Request, { params }: { params: Promise<{ i
       where: { id, ownerUserId: session.data.user.id },
       select: { id: true },
     });
-
-    if (!owns) {
+    if (!owns)
       return NextResponse.json({ error: "Event not found" }, { status: 404 });
-    }
 
-    await prisma.event.delete({
-      where: { id },
-    });
-
+    await prisma.event.delete({ where: { id } });
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Failed to delete event", error);
-    return NextResponse.json({ error: error instanceof Error ? error.message : "Bad Request" }, { status: 400 });
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : "Bad Request" },
+      { status: 400 }
+    );
   }
-}
+};

@@ -41,10 +41,12 @@ export const POST = async (request: Request, { params }: { params: Promise<{ tok
         email: input.email,
         emailNormalized,
         status: input.status as RsvpStatus,
+        message: input.message ?? null,
       },
       update: {
         name: input.name,
         status: input.status as RsvpStatus,
+        message: input.message ?? null,
         respondedAt: new Date(),
       },
     });

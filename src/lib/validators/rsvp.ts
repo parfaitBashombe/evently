@@ -9,4 +9,9 @@ export const rsvpSchema = z.object({
   status: z.enum(["going", "maybe", "not_going"], {
     message: "Invalid RSVP status.",
   }),
+  message: z
+    .string()
+    .max(500, "Message too long.")
+    .optional()
+    .transform((v) => v?.trim() || null),
 });
