@@ -7,14 +7,13 @@ import { Button } from "@/components/ui/button";
 import { Field, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import {
-  CalendarDays,
-  MapPin,
-  CheckCircle2,
-  HelpCircle,
-  XCircle,
-  Loader2,
-  PartyPopper,
-} from "lucide-react";
+  FaCalendarDays,
+  FaLocationDot,
+  FaCircleCheck,
+  FaCircleQuestion,
+  FaCircleXmark,
+  FaSpinner,
+} from "react-icons/fa6";
 
 interface EventData {
   title: string;
@@ -29,21 +28,21 @@ const STATUS_OPTIONS = [
   {
     value: "going" as RsvpStatus,
     label: "Going",
-    icon: CheckCircle2,
+    icon: FaCircleCheck,
     className: "text-emerald-400 border-emerald-500/40 bg-emerald-500/10",
     idleClassName: "text-muted-foreground/40 border-border bg-transparent",
   },
   {
     value: "maybe" as RsvpStatus,
     label: "Maybe",
-    icon: HelpCircle,
+    icon: FaCircleQuestion,
     className: "text-amber-400 border-amber-500/40 bg-amber-500/10",
     idleClassName: "text-muted-foreground/40 border-border bg-transparent",
   },
   {
     value: "not_going" as RsvpStatus,
     label: "Can't go",
-    icon: XCircle,
+    icon: FaCircleXmark,
     className: "text-red-400 border-red-500/40 bg-red-500/10",
     idleClassName: "text-muted-foreground/40 border-border bg-transparent",
   },
@@ -104,17 +103,17 @@ export const RsvpModal = ({ token }: { token: string }) => {
       <DialogContent className="sm:max-w-md">
         <div
           aria-hidden
-          className="absolute inset-x-0 top-0 h-px rounded-t-xl bg-violet-500/50"
+          className="absolute inset-x-0 top-0 h-px rounded-t-xl bg-blue-500/50"
         />
 
         {loading ? (
           <div className="flex items-center justify-center py-16">
-            <Loader2 className="h-7 w-7 animate-spin text-violet-400" />
+            <FaSpinner className="h-7 w-7 animate-spin text-blue-400" />
           </div>
         ) : invalid ? (
           <div className="flex flex-col items-center gap-3 py-12 text-center">
             <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-red-500/10">
-              <XCircle className="h-5 w-5 text-red-400" />
+              <FaCircleXmark className="h-5 w-5 text-red-400" />
             </span>
             <DialogTitle className="text-base font-semibold">
               Invite not found
@@ -126,8 +125,8 @@ export const RsvpModal = ({ token }: { token: string }) => {
           </div>
         ) : submitted ? (
           <div className="flex flex-col items-center gap-4 py-12 text-center">
-            <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-violet-500/10">
-              <PartyPopper className="h-6 w-6 text-violet-400" />
+            <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-500/10">
+              <FaCircleCheck className="h-6 w-6 text-emerald-400" />
             </span>
             <div className="flex flex-col gap-1">
               <DialogTitle className="text-lg font-bold">
@@ -146,7 +145,7 @@ export const RsvpModal = ({ token }: { token: string }) => {
           <>
             {/* Event info */}
             <div className="flex flex-col gap-1.5">
-              <p className="text-[11px] font-medium uppercase tracking-wider text-violet-400">
+              <p className="text-[11px] font-medium uppercase tracking-wider text-blue-400">
                 You&apos;re invited
               </p>
               <DialogTitle className="text-xl font-bold leading-snug">
@@ -155,7 +154,7 @@ export const RsvpModal = ({ token }: { token: string }) => {
               <div className="flex flex-wrap gap-x-4 gap-y-0.5 text-xs text-muted-foreground">
                 {event?.eventDate && (
                   <span className="flex items-center gap-1.5">
-                    <CalendarDays className="h-3.5 w-3.5 text-violet-400" />
+                    <FaCalendarDays className="h-3.5 w-3.5 text-blue-400" />
                     {new Date(event.eventDate).toLocaleString(undefined, {
                       weekday: "short",
                       month: "short",
@@ -168,7 +167,7 @@ export const RsvpModal = ({ token }: { token: string }) => {
                 )}
                 {event?.location && (
                   <span className="flex items-center gap-1.5">
-                    <MapPin className="h-3.5 w-3.5 text-violet-400" />
+                    <FaLocationDot className="h-3.5 w-3.5 text-blue-400" />
                     {event.location}
                   </span>
                 )}
@@ -236,7 +235,7 @@ export const RsvpModal = ({ token }: { token: string }) => {
               <Button type="submit" disabled={pending} className="w-full">
                 {pending ? (
                   <>
-                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    <FaSpinner className="h-3.5 w-3.5 animate-spin" />
                     Submitting…
                   </>
                 ) : (

@@ -3,17 +3,12 @@ import Link from "next/link";
 import { getSession } from "@/lib/auth/server";
 import { prisma } from "@/lib/prisma";
 import { EventManagement } from "@/components/event-management";
-import { ArrowLeft } from "lucide-react";
+import { FaArrowLeft } from "react-icons/fa6";
 
 export const dynamic = "force-dynamic";
 
-function computeRsvpByDay(
-  rsvps: Array<{ status: string; respondedAt: Date }>
-) {
-  const map = new Map<
-    string,
-    { going: number; maybe: number; notGoing: number; total: number }
-  >();
+function computeRsvpByDay(rsvps: Array<{ status: string; respondedAt: Date }>) {
+  const map = new Map<string, { going: number; maybe: number; notGoing: number; total: number }>();
   for (const rsvp of rsvps) {
     const date = rsvp.respondedAt.toISOString().split("T")[0];
     const entry = map.get(date) ?? { going: 0, maybe: 0, notGoing: 0, total: 0 };
@@ -28,11 +23,7 @@ function computeRsvpByDay(
     .map(([date, counts]) => ({ date, ...counts }));
 }
 
-export default async function EventManagementPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
+export default async function EventManagementPage({ params }: { params: Promise<{ id: string }> }) {
   const session = await getSession();
   if (!session.data) redirect("/auth/sign-in");
 
@@ -41,28 +32,13 @@ export default async function EventManagementPage({
   const event = await prisma.event.findFirst({
     where: { id, ownerUserId: session.data.user.id },
     select: {
-      id: true,
-      title: true,
-      description: true,
-      coverImage: true,
-      location: true,
-      category: true,
-      capacity: true,
-      status: true,
-      isPublic: true,
-      eventDate: true,
-      endDate: true,
+      id: true, title: true, description: true, coverImage: true,
+      location: true, category: true, capacity: true, status: true,
+      isPublic: true, eventDate: true, endDate: true,
       invite: { select: { token: true } },
       rsvps: {
         orderBy: { respondedAt: "desc" },
-        select: {
-          id: true,
-          name: true,
-          email: true,
-          status: true,
-          message: true,
-          respondedAt: true,
-        },
+        select: { id: true, name: true, email: true, status: true, message: true, respondedAt: true },
       },
       _count: { select: { comments: true, likes: true } },
     },
@@ -76,38 +52,23 @@ export default async function EventManagementPage({
   const rsvpByDay = computeRsvpByDay(event.rsvps);
 
   return (
-    <div className="flex flex-col gap-6 pb-16">
-      <Link
-        href="/dashboard"
-        className="flex w-fit items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
-      >
-        <ArrowLeft className="h-3.5 w-3.5" />
+    <div className="max-w-5xl mx-auto w-full px-4 md:px-10 py-10 flex flex-col gap-6 pb-16">
+      <Link href="/dashboard" className="flex w-fit items-center gap-1.5 text-sm text-white/40 transition-colors hover:text-white/80">
+        <FaArrowLeft className="h-3.5 w-3.5" />
         Dashboard
       </Link>
-
       <EventManagement
         event={{
-          id: event.id,
-          title: event.title,
-          description: event.description,
-          coverImage: event.coverImage,
-          location: event.location,
-          category: event.category,
-          capacity: event.capacity,
-          status: event.status,
-          isPublic: event.isPublic,
+          id: event.id, title: event.title, description: event.description,
+          coverImage: event.coverImage, location: event.location, category: event.category,
+          capacity: event.capacity, status: event.status, isPublic: event.isPublic,
           eventDate: event.eventDate?.toISOString() ?? null,
           endDate: event.endDate?.toISOString() ?? null,
           inviteToken: event.invite?.token ?? null,
-          goingCount,
-          maybeCount,
-          notGoingCount,
+          goingCount, maybeCount, notGoingCount,
           commentCount: event._count.comments,
           likeCount: event._count.likes,
-          rsvps: event.rsvps.map((r) => ({
-            ...r,
-            respondedAt: r.respondedAt.toISOString(),
-          })),
+          rsvps: event.rsvps.map((r) => ({ ...r, respondedAt: r.respondedAt.toISOString() })),
           rsvpByDay,
         }}
       />

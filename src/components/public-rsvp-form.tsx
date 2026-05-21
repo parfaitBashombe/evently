@@ -1,16 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Field, FieldLabel } from "@/components/ui/field";
 import {
-  CheckCircle2,
-  HelpCircle,
-  XCircle,
-  Loader2,
-  PartyPopper,
-} from "lucide-react";
+  FaCircleCheck,
+  FaCircleQuestion,
+  FaCircleXmark,
+  FaSpinner,
+} from "react-icons/fa6";
 
 type RsvpStatus = "going" | "maybe" | "not_going";
 
@@ -18,25 +15,28 @@ const STATUS_OPTIONS = [
   {
     value: "going" as RsvpStatus,
     label: "Going",
-    icon: CheckCircle2,
-    active: "text-emerald-400 border-emerald-500/40 bg-emerald-500/10",
-    idle: "text-muted-foreground/50 border-border bg-transparent hover:border-emerald-500/20 hover:text-emerald-400/60",
+    icon: FaCircleCheck,
+    active: "text-emerald-400 border-emerald-500/30 bg-emerald-500/15",
+    idle: "text-white/40 border-white/10 bg-transparent hover:border-emerald-500/25 hover:text-emerald-400",
   },
   {
     value: "maybe" as RsvpStatus,
     label: "Maybe",
-    icon: HelpCircle,
-    active: "text-amber-400 border-amber-500/40 bg-amber-500/10",
-    idle: "text-muted-foreground/50 border-border bg-transparent hover:border-amber-500/20 hover:text-amber-400/60",
+    icon: FaCircleQuestion,
+    active: "text-amber-400 border-amber-500/30 bg-amber-500/15",
+    idle: "text-white/40 border-white/10 bg-transparent hover:border-amber-500/25 hover:text-amber-400",
   },
   {
     value: "not_going" as RsvpStatus,
     label: "Can't go",
-    icon: XCircle,
-    active: "text-red-400 border-red-500/40 bg-red-500/10",
-    idle: "text-muted-foreground/50 border-border bg-transparent hover:border-red-500/20 hover:text-red-400/60",
+    icon: FaCircleXmark,
+    active: "text-red-400 border-red-500/30 bg-red-500/15",
+    idle: "text-white/40 border-white/10 bg-transparent hover:border-red-500/25 hover:text-red-400",
   },
 ] as const;
+
+const inputClass =
+  "h-10 w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder:text-white/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#004ac6]/20 focus-visible:border-[#004ac6]/60 transition-colors disabled:opacity-40";
 
 export const PublicRsvpForm = ({ token }: { token: string }) => {
   const [status, setStatus] = useState<RsvpStatus>("going");
@@ -69,13 +69,13 @@ export const PublicRsvpForm = ({ token }: { token: string }) => {
 
   if (submitted) {
     return (
-      <div className="flex flex-col items-center gap-4 rounded-2xl border border-border bg-card p-8 text-center">
-        <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-violet-500/10">
-          <PartyPopper className="h-6 w-6 text-violet-400" />
+      <div className="flex flex-col items-center gap-5 rounded-2xl border border-emerald-500/20 bg-emerald-500/10 p-8 text-center">
+        <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-500/15">
+          <FaCircleCheck className="h-7 w-7 text-emerald-400" />
         </span>
-        <div className="flex flex-col gap-1">
-          <p className="text-lg font-bold">You&apos;re all set!</p>
-          <p className="text-sm text-muted-foreground">
+        <div className="flex flex-col gap-1.5">
+          <p className="text-lg font-bold text-white">You&apos;re all set!</p>
+          <p className="text-sm text-white/45 leading-relaxed max-w-xs">
             Your RSVP has been recorded. Come back any time to update it.
           </p>
         </div>
@@ -84,8 +84,8 @@ export const PublicRsvpForm = ({ token }: { token: string }) => {
   }
 
   return (
-    <div className="rounded-2xl border border-border bg-card p-5">
-      <p className="mb-4 text-sm font-semibold">RSVP to this event</p>
+    <div className="rounded-2xl border border-white/8 bg-[#0e1528] p-6">
+      <p className="mb-5 text-base font-bold text-white">RSVP to this event</p>
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         {/* Status toggle */}
@@ -96,43 +96,50 @@ export const PublicRsvpForm = ({ token }: { token: string }) => {
               type="button"
               onClick={() => setStatus(value)}
               disabled={pending}
-              className={`flex flex-col items-center gap-1.5 rounded-xl border px-2 py-3 text-xs font-medium transition-all ${
+              className={`flex flex-col items-center gap-2 rounded-xl border px-2 py-3.5 text-xs font-semibold transition-all ${
                 status === value ? active : idle
               }`}
             >
-              <Icon className="h-4 w-4" />
-              {label}
+              <Icon className="h-5 w-5" />
+              <span>{label}</span>
             </button>
           ))}
         </div>
 
         <Field>
-          <FieldLabel htmlFor="rsvp-name">Your name</FieldLabel>
-          <Input
+          <FieldLabel htmlFor="rsvp-name">
+            <span className="text-xs font-semibold text-white/55">Your name</span>
+          </FieldLabel>
+          <input
             id="rsvp-name"
             name="name"
             required
             placeholder="Alex Johnson"
             disabled={pending}
+            className={inputClass}
           />
         </Field>
 
         <Field>
-          <FieldLabel htmlFor="rsvp-email">Email</FieldLabel>
-          <Input
+          <FieldLabel htmlFor="rsvp-email">
+            <span className="text-xs font-semibold text-white/55">Email</span>
+          </FieldLabel>
+          <input
             id="rsvp-email"
             name="email"
             type="email"
             required
             placeholder="you@example.com"
             disabled={pending}
+            className={inputClass}
           />
         </Field>
 
         <Field>
           <FieldLabel htmlFor="rsvp-message">
-            Message{" "}
-            <span className="text-muted-foreground font-normal">(optional)</span>
+            <span className="text-xs font-semibold text-white/55">
+              Message <span className="text-white/30 font-normal">(optional)</span>
+            </span>
           </FieldLabel>
           <textarea
             id="rsvp-message"
@@ -141,26 +148,31 @@ export const PublicRsvpForm = ({ token }: { token: string }) => {
             disabled={pending}
             rows={2}
             maxLength={500}
-            className="flex w-full resize-none rounded-lg border border-input bg-transparent px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:opacity-50"
+            className="flex w-full resize-none rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder:text-white/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#004ac6]/20 focus-visible:border-[#004ac6]/60 disabled:opacity-40 transition-colors"
           />
         </Field>
 
         {error && (
-          <p className="rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-300">
+          <p className="border border-red-500/20 bg-red-500/10 text-red-400 text-sm px-3 py-2 rounded-lg">
             {error}
           </p>
         )}
 
-        <Button type="submit" disabled={pending} className="w-full">
+        <button
+          type="submit"
+          disabled={pending}
+          style={{ background: "linear-gradient(135deg, #004ac6, #6d28d9)" }}
+          className="w-full flex items-center justify-center gap-2 rounded-lg px-4 py-3 text-sm font-bold text-white disabled:opacity-50 shadow-sm"
+        >
           {pending ? (
             <>
-              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              <FaSpinner className="h-3.5 w-3.5 animate-spin" />
               Submitting…
             </>
           ) : (
             "Confirm RSVP"
           )}
-        </Button>
+        </button>
       </form>
     </div>
   );

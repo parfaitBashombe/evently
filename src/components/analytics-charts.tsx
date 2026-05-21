@@ -74,43 +74,39 @@ export const AnalyticsCharts = ({
       {/* Key metrics */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         {[
-          { label: "Total RSVPs", value: total, accent: "" },
-          {
-            label: "Going rate",
-            value: `${goingRate}%`,
-            accent: "text-emerald-400",
-          },
+          { label: "Total RSVPs", value: total, accent: "text-white" },
+          { label: "Going rate", value: `${goingRate}%`, accent: "text-emerald-400" },
           { label: "Likes", value: totalLikes, accent: "text-rose-400" },
-          { label: "Comments", value: totalComments, accent: "text-sky-400" },
+          { label: "Comments", value: totalComments, accent: "text-[#60a5fa]" },
         ].map(({ label, value, accent }) => (
           <div
             key={label}
-            className="flex flex-col items-center gap-1 rounded-xl border border-border bg-muted/30 py-4 text-center"
+            className="flex flex-col items-center gap-1 rounded-xl border border-white/8 bg-[#0e1528] py-4 text-center"
           >
             <span className={`text-2xl font-bold tabular-nums ${accent}`}>
               {value}
             </span>
-            <span className="text-xs text-muted-foreground">{label}</span>
+            <span className="text-xs text-white/35">{label}</span>
           </div>
         ))}
       </div>
 
       {/* Capacity bar */}
       {capacity !== null && (
-        <div className="flex flex-col gap-2 rounded-xl border border-border bg-muted/20 p-4">
+        <div className="flex flex-col gap-2 rounded-xl border border-white/8 bg-[#0e1528] p-4">
           <div className="flex items-center justify-between text-sm">
-            <span className="text-muted-foreground">Capacity</span>
-            <span className="font-medium tabular-nums">
+            <span className="text-white/45">Capacity</span>
+            <span className="font-medium tabular-nums text-white">
               {total} / {capacity}
             </span>
           </div>
-          <div className="h-2 w-full overflow-hidden rounded-full bg-border">
+          <div className="h-2 w-full overflow-hidden rounded-full bg-white/8">
             <div
-              className="h-full rounded-full bg-violet-500 transition-all duration-700"
+              className="h-full rounded-full bg-[#004ac6] transition-all duration-700"
               style={{ width: `${capacityFill ?? 0}%` }}
             />
           </div>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-xs text-white/45">
             {capacityFill ?? 0}% filled
           </p>
         </div>
@@ -119,7 +115,7 @@ export const AnalyticsCharts = ({
       {/* Status breakdown */}
       {total > 0 && (
         <div className="flex flex-col gap-3">
-          <h3 className="text-sm font-medium text-muted-foreground">
+          <h3 className="text-sm font-semibold text-white/45">
             Response breakdown
           </h3>
           <div className="flex flex-col items-center gap-4 sm:flex-row">
@@ -148,10 +144,11 @@ export const AnalyticsCharts = ({
                   </Pie>
                   <Tooltip
                     contentStyle={{
-                      background: "#111118",
+                      background: "#0e1528",
                       border: "1px solid rgba(255,255,255,0.08)",
-                      borderRadius: "0.5rem",
+                      borderRadius: "0.75rem",
                       fontSize: "12px",
+                      color: "#f1f5f9",
                     }}
                   />
                 </PieChart>
@@ -168,11 +165,11 @@ export const AnalyticsCharts = ({
                         STATUS_COLORS[name as keyof typeof STATUS_COLORS],
                     }}
                   />
-                  <span className="text-muted-foreground">{name}</span>
-                  <span className="ml-auto font-semibold tabular-nums">
+                  <span className="text-white/55">{name}</span>
+                  <span className="ml-auto font-semibold tabular-nums text-white">
                     {value}
                   </span>
-                  <span className="text-xs text-muted-foreground">
+                  <span className="text-xs text-white/35">
                     ({Math.round((value / total) * 100)}%)
                   </span>
                 </div>
@@ -185,7 +182,7 @@ export const AnalyticsCharts = ({
       {/* RSVPs over time */}
       {barData.length > 1 && (
         <div className="flex flex-col gap-3">
-          <h3 className="text-sm font-medium text-muted-foreground">
+          <h3 className="text-sm font-semibold text-white/45">
             RSVPs over time
           </h3>
           <div className="h-48 w-full">
@@ -197,23 +194,24 @@ export const AnalyticsCharts = ({
                 />
                 <XAxis
                   dataKey="date"
-                  tick={{ fontSize: 11, fill: "rgba(255,255,255,0.4)" }}
+                  tick={{ fontSize: 11, fill: "rgba(255,255,255,0.3)" }}
                   axisLine={false}
                   tickLine={false}
                 />
                 <YAxis
                   allowDecimals={false}
-                  tick={{ fontSize: 11, fill: "rgba(255,255,255,0.4)" }}
+                  tick={{ fontSize: 11, fill: "rgba(255,255,255,0.3)" }}
                   axisLine={false}
                   tickLine={false}
                   width={24}
                 />
                 <Tooltip
                   contentStyle={{
-                    background: "#111118",
+                    background: "#0e1528",
                     border: "1px solid rgba(255,255,255,0.08)",
-                    borderRadius: "0.5rem",
+                    borderRadius: "0.75rem",
                     fontSize: "12px",
+                    color: "#f1f5f9",
                   }}
                 />
                 <Bar
